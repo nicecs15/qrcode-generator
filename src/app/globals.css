@@ -40,3 +40,8 @@ a {
     color-scheme: dark;
   }
 }
+
+/* Make react-datepicker input full width */
+.react-datepicker-wrapper {
+  width: 100%;
+}
