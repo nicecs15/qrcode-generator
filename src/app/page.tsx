@@ -38,6 +38,12 @@ type FormData = {
   };
 };
 
+type PayloadData = 
+    | { url: string; expiresAt: string | null }
+    | { text: string }
+    | FormData['wifi']
+    | FormData['email'];
+
 export default function Home() {
   const [activeTab, setActiveTab] = useState('url');
   const [formData, setFormData] = useState<FormData>({
@@ -59,10 +65,25 @@ export default function Home() {
     const { name, value } = e.target;
     const [category, field] = name.split('.');
 
-    if (field) {
-        setFormData(prev => ({ ...prev, [category]: { ...prev[category as keyof FormData], [field]: value } }));
+    if (field && (category === 'wifi' || category === 'email')) {
+      setFormData(prev => {
+        const prevCategory = prev[category as keyof FormData];
+        if (typeof prevCategory === 'object' && prevCategory !== null) {
+          return {
+            ...prev,
+            [category]: {
+              ...prevCategory,
+              [field]: value,
+            },
+          };
+        }
+        return prev;
+      });
     } else {
-        setFormData(prev => ({ ...prev, [name]: value }));
+      setFormData(prev => ({
+        ...prev,
+        [name]: value,
+      }));
     }
   };
 
@@ -73,7 +94,7 @@ export default function Home() {
     setQrCode('');
     setShortUrl('');
 
-    let payloadData: any;
+    let payloadData: PayloadData;
     switch (activeTab) {
         case 'url':
             if (!formData.url) {
@@ -136,8 +157,12 @@ export default function Home() {
       if (data.shortUrl) {
         setShortUrl(data.shortUrl);
       }
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError('An unexpected error occurred.');
+      }
     } finally {
       setIsLoading(false);
     }
@@ -251,7 +276,7 @@ export default function Home() {
                   <h3 className="mb-3">Your QR Code is Ready!</h3>
                   <Image src={qrCode} alt="Generated QR Code" fluid rounded />
                   {shortUrl && <p className="mt-3">Short URL: <a href={shortUrl} target="_blank" rel="noopener noreferrer">{shortUrl}</a></p>}
-                  <Button variant="success" href={qrCode} download="qrcode.png" className="mt-2">Download QR Code</Button>
+                  <a href={qrCode} download="qrcode.png" className="btn btn-success mt-2">Download QR Code</a>
                 </div>
               )}
             </Card.Body>

@@ -38,7 +38,7 @@ export async function POST(req: NextRequest) {
       case 'url': {
         const { url, expiresAt } = data;
         if (!url) return NextResponse.json({ message: 'URL is required' }, { status: 400 });
-        try { new URL(url); } catch (_) { return NextResponse.json({ message: 'Invalid URL format' }, { status: 400 }); }
+        try { new URL(url); } catch { return NextResponse.json({ message: 'Invalid URL format' }, { status: 400 }); }
 
         // Normalize and validate expiresAt if provided
         let normalizedExpiresAt: string | null = null;

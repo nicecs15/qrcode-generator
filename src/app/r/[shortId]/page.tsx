@@ -1,4 +1,3 @@
-
 import { redirect } from 'next/navigation';
 import { getDb } from '@/lib/db';
 import { Container, Alert } from 'react-bootstrap';
